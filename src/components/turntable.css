@@ -1,0 +1,13 @@
+.canvas {
+    width: 100vmax;
+    height: 100vh;
+}
+
+.table {
+    transform-origin: 300px 400px;
+    transition: transform 5s cubic-bezier(.35,.5,.36,1);
+}
+
+.reset {
+    transition: none !important;
+}
