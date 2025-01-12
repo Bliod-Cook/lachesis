@@ -49,7 +49,7 @@ jobs:
           pnpm update
           pnpm i
           pnpm install -D @tauri-apps/cli@latest
-          pnpm run tauri build
+          npx tauri build
 
       - name: Upload Artifacts
         if: matrix.platform == 'windows-latest'
