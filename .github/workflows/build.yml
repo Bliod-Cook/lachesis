@@ -48,8 +48,8 @@ jobs:
         run: |
           pnpm update
           pnpm i
-          cargo install tauri-cli
-          cargo tauri build
+          pnpm install -D @tauri-apps/cli@latest
+          pnpm run tauri build
 
       - name: Upload Artifacts
         if: matrix.platform == 'windows-latest'
