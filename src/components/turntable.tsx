@@ -19,6 +19,7 @@ export default function Turntable({width, height, elementList, rotateDegree}: {
         return e.chance
     }).reduce((accumulator, currentValue) => accumulator + currentValue, 0)
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let degree = -90-(elementList[0].chance/totalChance*180)
 
     return (
@@ -67,7 +68,7 @@ export default function Turntable({width, height, elementList, rotateDegree}: {
                                 <path
                                     d={pathD}
                                     fill={color}
-                                    stroke={"black"}
+                                    // stroke={"black"}
                                 ></path>
                                 <text
                                     x={labelX}
@@ -87,6 +88,7 @@ export default function Turntable({width, height, elementList, rotateDegree}: {
                         })
                     }
                 </g>
+                <circle cx={width/2} cy={height/2} r={radius} fill={"none"} stroke={"black"}></circle>
                 <polygon
                     points={`${width / 2},${height / 2 - radius + 10} ${width / 2 - 10},${height / 2 - radius - 20} ${width / 2 + 10},${height / 2 - radius - 20}`}
                 ></polygon>

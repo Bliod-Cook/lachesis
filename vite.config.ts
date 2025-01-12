@@ -2,7 +2,6 @@ import { defineConfig } from 'vite'
 import { resolve } from 'path'
 import react from '@vitejs/plugin-react-swc'
 import * as path from "node:path";
-import {nodePolyfills} from "vite-plugin-node-polyfills";
 import legacy from "@vitejs/plugin-legacy"
 
 const host = process.env.TAURI_DEV_HOST;
@@ -23,14 +22,13 @@ export default defineConfig({
   build: {
     // Tauri uses Chromium on Windows and WebKit on macOS and Linux
     target:
-        process.env.TAURI_ENV_PLATFORM == 'windows'
-            ? 'chrome105'
-            : 'safari13',
+        'chrome105',
     // don't minify for debug builds
     minify: !process.env.TAURI_ENV_DEBUG ? 'esbuild' : false,
     // produce sourcemaps for debug builds
     sourcemap: !!process.env.TAURI_ENV_DEBUG,
     outDir: "../dist/",
+    emptyOutDir: true,
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'src/index.html'),
@@ -38,9 +36,7 @@ export default defineConfig({
     }
   },
   resolve: {
-    alias: {
-      '@': path.join(__dirname, 'src')
-    }
+    alias: { '@': path.resolve(__dirname, 'src')},
   },
   root: "src",
   define: {
@@ -48,11 +44,13 @@ export default defineConfig({
   },
   plugins: [
       react(),
-      nodePolyfills(),
+      // nodePolyfills(),
       legacy({
-      renderLegacyChunks: false,
-      modernTargets: ["edge>=109", "safari>=13"],
-      modernPolyfills: true,
-    }),
+        renderLegacyChunks: true,
+        modernTargets: ["edge>=109"],
+        modernPolyfills: true,
+        polyfills: true,
+        externalSystemJS: true
+      }),
   ]
 })

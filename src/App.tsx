@@ -3,7 +3,6 @@ import AppStyle from "./App.module.scss"
 import Turntable from "./components/turntable.tsx";
 import {useEffect, useState} from "react";
 import {exists, BaseDirectory, readTextFile} from "@tauri-apps/plugin-fs";
-import {parse} from "csv/sync";
 
 const chance = new (await import("chance")).Chance()
 
@@ -18,6 +17,10 @@ export type singleElement = {
 }
 
 export default function App() {
+    // const [history] = useState<number[]>(new Array<number>(800).fill(0))
+
+    const [isTurning, setIsTurning] = useState(false)
+
     const [rotate, setRotate] = useState(0)
     const [colorList] = useState(new Colors())
 
@@ -45,7 +48,16 @@ export default function App() {
 
                     const rawContent = await readTextFile(name, {baseDir: BaseDirectory.AppLocalData})
 
-                    const parsed: [] = parse(rawContent)
+                    // const parsed: [] = parse(rawContent)
+                    const parsed: string[][] = []
+
+                    rawContent.split("\r\n").forEach((e)=>{
+                        const list = e.split(",")
+                        if (list.length===2) {
+                            parsed.push(list)
+                            console.log(list)
+                        }
+                    })
 
                     let totalChance = 0;
 
@@ -94,6 +106,7 @@ export default function App() {
 
     function turnTurnTable() {
         setRotate(0)
+        setIsTurning(true)
 
         setTimeout(()=>{
             const degree = chance.floating({min: 0, max: 360});
@@ -106,11 +119,7 @@ export default function App() {
                         setRotate(-degree-1440)
                         setTimeout(()=>{setSelectedPrize(e.id)}, 5000)
                         return
-                    }
-                }
-            )
-            elementList.forEach(
-                (e) => {
+                    }else
                     if ((e.startDegree < degree-90-360) && (e.endDegree > degree-90-360)) {
                         setRotate(-degree-1440)
                         setTimeout(()=>{setSelectedPrize(e.id)}, 5000)
@@ -118,7 +127,24 @@ export default function App() {
                     }
                 }
             )
+
+            setTimeout(()=>{setIsTurning(false)}, 5000)
         }, 200)
+
+        // for (let i = 0; i< 2000000; i++) {
+        //     const degree = chance.floating({min: 0, max: 360});
+        //
+        //     elementList.forEach(
+        //         (e) => {
+        //             if ((e.startDegree < degree-90) && (e.endDegree > degree-90)) {
+        //                 history[e.id-1] += 1
+        //             }else
+        //             if ((e.startDegree < degree-90-360) && (e.endDegree > degree-90-360)) {
+        //                 history[e.id-1] += 1
+        //             }
+        //         }
+        //     )
+        // }
     }
 
     return <Box
@@ -142,6 +168,7 @@ export default function App() {
                 <Button
                     className={`${AppStyle.startButton}`}
                     onClick={turnTurnTable}
+                    disabled={isTurning}
                 >
                     抽奖
                 </Button>
@@ -167,7 +194,7 @@ export default function App() {
                 <TableBody>
                     {
                         elementList.map((row, i) => {
-                            return <TableRow key={i}>
+                            return <TableRow key={i} selected={i+1 === selectedPrize}>
                                 <TableCell>{row.name}</TableCell>
                                 <TableCell>{row.description}</TableCell>
                                 <TableCell>{row.chance}</TableCell>
@@ -185,7 +212,29 @@ class Colors {
     private arrow: number
 
     constructor() {
-        this.colors = ['#FF5733', '#FFC300', '#DAF7A8', '#90EE90', '#40E0D0', '#6495ED', '#007BFF', '#A020F0', '#E278E2', '#FF69B4', '#CD5C5C', '#FA8072', '#D2B48C', '#A9A9A9']
+        this.colors = [
+            '#FF5733',
+            '#FFC300',
+            '#DAF7A8',
+            '#90EE90',
+            '#81D8D0',
+            '#6495ED',
+            '#007BFF',
+            '#A020F0',
+            '#E278E2',
+            '#FF69B4',
+            '#CD5C5C',
+            '#FA8072',
+            '#D2B48C',
+            '#A9A9A9',
+            '#FFFF00',
+            '#E6E6FA',
+            '#F4A460',
+            '#FFD700',
+            '#228B22',
+            '#00FFFF',
+            '#800000',
+        ]
         this.arrow = 0
     }
 
