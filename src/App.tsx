@@ -1,4 +1,14 @@
-import {Box, Button, Switch, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
+import {
+    Box,
+    Button,
+    Switch,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow
+} from "@mui/material";
 import AppStyle from "./App.module.scss"
 import Turntable from "./components/turntable.tsx";
 import {useEffect, useState} from "react";
@@ -53,9 +63,16 @@ export default function App() {
 
                     rawContent.split("\n").forEach((e)=>{
                         const list = e.replace("\r", "").split(",")
-                        if (list.length === 2 || list.length === 3) {
-                            parsed.push(list)
-                            console.log(list)
+                        console.log(list)
+                        if (list.length >= 2) {
+                            const temp1 = list.shift();
+                            const temp2 = list.shift();
+                            const temp3 = list.join(", ");
+                            const tempList = [];
+                            tempList.push(temp1);
+                            tempList.push(temp2)
+                            tempList.push(temp3)
+                            parsed.push(tempList as string[])
                         }
                     })
 
