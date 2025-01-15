@@ -2,7 +2,7 @@ import {Box, Button, Switch, Table, TableBody, TableCell, TableContainer, TableH
 import AppStyle from "./App.module.scss"
 import Turntable from "./components/turntable.tsx";
 import {useEffect, useState} from "react";
-import {exists, BaseDirectory, readTextFile} from "@tauri-apps/plugin-fs";
+import {exists, BaseDirectory, readFile} from "@tauri-apps/plugin-fs";
 
 const chance = new (await import("chance")).Chance()
 
@@ -46,14 +46,14 @@ export default function App() {
                 if (e) {
                     const list: singleElement[] = [];
 
-                    const rawContent = await readTextFile(name, {baseDir: BaseDirectory.AppLocalData})
+                    const rawContent = new TextDecoder('gbk').decode(await readFile(name, {baseDir: BaseDirectory.AppLocalData}))
 
                     // const parsed: [] = parse(rawContent)
                     const parsed: string[][] = []
 
-                    rawContent.split("\r\n").forEach((e)=>{
-                        const list = e.split(",")
-                        if (list.length===2) {
+                    rawContent.split("\n").forEach((e)=>{
+                        const list = e.replace("\r", "").split(",")
+                        if (list.length === 2 || list.length === 3) {
                             parsed.push(list)
                             console.log(list)
                         }
