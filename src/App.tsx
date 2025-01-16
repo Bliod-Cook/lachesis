@@ -1,7 +1,6 @@
 import {
     Box,
-    Button,
-    Switch,
+    Button, Slider,
     Table,
     TableBody,
     TableCell,
@@ -29,6 +28,8 @@ export type singleElement = {
 export default function App() {
     // const [history] = useState<number[]>(new Array<number>(800).fill(0))
 
+    const [selectTable, setSelectTable] = useState(1)
+
     const [isTurning, setIsTurning] = useState(false)
 
     const [rotate, setRotate] = useState(0)
@@ -39,21 +40,26 @@ export default function App() {
     const [selectedPrize, setSelectedPrize] = useState(0)
 
     useEffect(() => {
-        setDefaultCSV()
+        processCSV("default.csv")
     }, []);
 
-    function setDefaultCSV() {
-        processCSV("default.csv")
-    }
-
-    function setSecondCSV() {
-        processCSV("second.csv")
-    }
+    useEffect(() => {
+        if (selectTable === 1) {
+            processCSV("default.csv")
+        } else if (selectTable === 2) {
+            processCSV("second.csv")
+        } else {
+            processCSV(`ext_${selectTable}.csv`)
+        }
+    }, [selectTable]);
 
     function processCSV(name: string) {
         exists(name, {baseDir: BaseDirectory.AppLocalData}).then(
             async (e) => {
                 if (e) {
+                    setRotate(0)
+                    setSelectedPrize(0)
+
                     const list: singleElement[] = [];
 
                     const rawContent = new TextDecoder('gbk').decode(await readFile(name, {baseDir: BaseDirectory.AppLocalData}))
@@ -112,7 +118,7 @@ export default function App() {
                                 color: "#666666",
                                 startDegree: 0,
                                 endDegree: 2*Math.PI,
-                                description: "AppData/Local/lachesis/default.csv"
+                                description: `AppData/Local/lachesis/${name}`
                             }
                         ]
                     )
@@ -181,6 +187,8 @@ export default function App() {
             </Box>
             <Box id={"user-ui"}
                  marginX={"auto"}
+                 display={"flex"}
+                 flexDirection={"column"}
             >
                 <Button
                     className={`${AppStyle.startButton}`}
@@ -189,14 +197,24 @@ export default function App() {
                 >
                     抽奖
                 </Button>
-                <Switch onChange={(e)=>{
-                    if (e.target.checked) {
-                        setSecondCSV()
-                    } else {
-                        setDefaultCSV()
-                    }
-                }}></Switch>
-                {selectedPrize ? elementList[selectedPrize-1].name : ""}
+                <Box
+                    width={240}
+                    marginX={"auto"}
+                    display={"flex"}
+                >
+                    <Slider
+                        defaultValue={1}
+                        value={selectTable}
+                        step={1}
+                        min={1}
+                        max={10}
+                        marks
+                        onChange={(_e, v)=>{setSelectTable(v as number)}}
+                    />
+                </Box>
+                <Box marginX={"auto"}>
+                    {selectedPrize ? elementList[selectedPrize - 1].name : ""}
+                </Box>
             </Box>
         </Box>
         <TableContainer>
@@ -211,7 +229,7 @@ export default function App() {
                 <TableBody>
                     {
                         elementList.map((row, i) => {
-                            return <TableRow key={i} selected={i+1 === selectedPrize}>
+                            return <TableRow key={i} selected={i + 1 === selectedPrize}>
                                 <TableCell>{row.name}</TableCell>
                                 <TableCell>{row.description}</TableCell>
                                 <TableCell>{row.chance}</TableCell>
@@ -221,7 +239,8 @@ export default function App() {
                 </TableBody>
             </Table>
         </TableContainer>
-    </Box>
+    </Box>;
+
 }
 
 class Colors {
