@@ -12,6 +12,8 @@ import AppStyle from "./App.module.scss"
 import Turntable from "./components/turntable.tsx";
 import {useEffect, useState} from "react";
 import {exists, BaseDirectory, readFile} from "@tauri-apps/plugin-fs";
+import { confirm } from '@tauri-apps/plugin-dialog';
+import {getCurrentWindow} from "@tauri-apps/api/window";
 
 const chance = new (await import("chance")).Chance()
 
@@ -23,10 +25,26 @@ export type singleElement = {
     startDegree: number,
     endDegree: number
     description: string | undefined,
+    limitation: number,
+}
+
+type Table = {
+    id: number,
+    elementList: singleElement[],
+    selectedPrize: number,
+    selectHistory: number[]
 }
 
 export default function App() {
     // const [history] = useState<number[]>(new Array<number>(800).fill(0))
+    const [table, setTable] = useState<Table[]>([
+        {
+            id: 1,
+            elementList: [{id: 1, name: "Loading", chance: 1, description: undefined, startDegree: 0, endDegree: 2*Math.PI, color: "#666666", limitation: 0}],
+            selectedPrize: 0,
+            selectHistory: []
+        }
+    ])
 
     const [selectTable, setSelectTable] = useState(1)
 
@@ -35,124 +53,135 @@ export default function App() {
     const [rotate, setRotate] = useState(0)
     const [colorList] = useState(new Colors())
 
-    const [elementList, setElementList] = useState<singleElement[]>([{id: 1, name: "Loading", chance: 1, description: undefined, startDegree: 0, endDegree: 2*Math.PI, color: "#666666"}])
-
-    const [selectedPrize, setSelectedPrize] = useState(0)
-
     useEffect(() => {
-        processCSV("default.csv")
+        processCSV(10).then()
     }, []);
 
     useEffect(() => {
-        if (selectTable === 1) {
-            processCSV("default.csv")
-        } else if (selectTable === 2) {
-            processCSV("second.csv")
-        } else {
-            processCSV(`ext_${selectTable}.csv`)
-        }
-    }, [selectTable]);
+        const window = getCurrentWindow();
 
-    function processCSV(name: string) {
-        exists(name, {baseDir: BaseDirectory.AppLocalData}).then(
-            async (e) => {
-                if (e) {
-                    setRotate(0)
-                    setSelectedPrize(0)
-
-                    const list: singleElement[] = [];
-
-                    const rawContent = new TextDecoder('gbk').decode(await readFile(name, {baseDir: BaseDirectory.AppLocalData}))
-
-                    // const parsed: [] = parse(rawContent)
-                    const parsed: string[][] = []
-
-                    rawContent.split("\n").forEach((e)=>{
-                        const list = e.replace("\r", "").split(",")
-                        console.log(list)
-                        if (list.length >= 2) {
-                            const temp1 = list.shift();
-                            const temp2 = list.shift();
-                            const temp3 = list.join(", ");
-                            const tempList = [];
-                            tempList.push(temp1);
-                            tempList.push(temp2)
-                            tempList.push(temp3)
-                            parsed.push(tempList as string[])
-                        }
-                    })
-
-                    let totalChance = 0;
-
-                    parsed.forEach(
-                        (e)=>{
-                            totalChance += Number(e[1])
-                        }
-                    )
-                    // @ts-expect-error Must Work
-                    let startDegree = -90-(parsed[0][1]*180/totalChance)
-
-                    parsed.forEach(
-                        (e, i)=>{
-                            list.push({
-                                id: i+1,
-                                name: e[0],
-                                chance: Number(e[1]),
-                                color: colorList.nextColor(),
-                                startDegree: startDegree,
-                                endDegree: startDegree + Number(e[1]) * 360 / totalChance,
-                                description: e[2]
-                            })
-                            startDegree += Number(e[1]) * 360 / totalChance
-                        }
-                    )
-
-                    setElementList(list)
-                } else {
-                    setElementList(
-                        [
-                            {
-                                id: 1,
-                                name: "未找到文件",
-                                chance: 1,
-                                color: "#666666",
-                                startDegree: 0,
-                                endDegree: 2*Math.PI,
-                                description: `AppData/Local/lachesis/${name}`
-                            }
-                        ]
-                    )
-                }
+        window.onCloseRequested(async (event) => {
+            event.preventDefault()
+            const confirmed = await confirm("Sure? O.O")
+            if (confirmed) {
+                await window.destroy();
             }
-        )
+        }).then()
+    }, []);
+
+    async function processCSV(num: number) {
+        const eList: Table[] = []
+        for (let i = 1; i <= num; i++) {
+            await exists(`ext_${i}.csv`, {baseDir: BaseDirectory.AppLocalData}).then(
+                async (e) => {
+                    if (e) {
+                        setRotate(0)
+
+                        const list: singleElement[] = [];
+
+                        const rawContent = new TextDecoder('gbk').decode(await readFile(`ext_${i}.csv`, {baseDir: BaseDirectory.AppLocalData}))
+
+                        // const parsed: [] = parse(rawContent)
+                        const parsed: string[][] = []
+
+                        rawContent.split("\n").forEach((e)=>{
+                            const list = e.replace("\r", "").split(",")
+                            console.log(list)
+                            if (list.length >= 3) {
+                                const tempList = [list.shift(),list.shift(),list.shift(),list.join(", ")];
+                                parsed.push(tempList as string[])
+                            }
+                        })
+
+                        let totalChance = 0;
+
+                        parsed.forEach(
+                            (e)=>{
+                                totalChance += Number(e[1])
+                            }
+                        )
+                        // @ts-expect-error Must Work
+                        let startDegree = -90-(parsed[0][1]*180/totalChance)
+
+                        parsed.forEach(
+                            (e, i)=>{
+                                list.push({
+                                    id: i+1,
+                                    name: e[0],
+                                    chance: Number(e[1]),
+                                    color: colorList.nextColor(),
+                                    startDegree: startDegree,
+                                    endDegree: startDegree + Number(e[1]) * 360 / totalChance,
+                                    limitation: Number(e[2]),
+                                    description: e[3]
+                                })
+                                startDegree += Number(e[1]) * 360 / totalChance
+                            }
+                        )
+
+                        eList.push({
+                            id: i,
+                            elementList: list,
+                            selectedPrize: 0,
+                            selectHistory: []
+                        })
+                    } else {
+                        eList.push({
+                            id: i,
+                            elementList: [
+                                {
+                                    id: 1,
+                                    name: "未找到文件",
+                                    chance: 1,
+                                    color: "#666666",
+                                    limitation: 0,
+                                    startDegree: 0,
+                                    endDegree: 360,
+                                    description: `AppData/Local/lachesis/ext_${i}.csv`
+                                }
+                            ],
+                            selectedPrize: 0,
+                            selectHistory: []
+                        })
+                    }
+                }
+            )
+        }
+        setTable(eList)
     }
 
     function turnTurnTable() {
         setRotate(0)
         setIsTurning(true)
 
-        setTimeout(()=>{
-            const degree = chance.floating({min: 0, max: 360});
+        setTimeout(() => {
+            for (const e of table[selectTable - 1].elementList) {
+                if (e.limitation < 0 || e.limitation > 0) {
+                    for (let i = 0; i < 1000000 ; i++) {
+                        const degree = chance.floating({min: 0, max: 360});
 
-            console.log(degree-90, degree)
-
-            elementList.forEach(
-                (e) => {
-                    if ((e.startDegree < degree-90) && (e.endDegree > degree-90)) {
-                        setRotate(-degree-1440)
-                        setTimeout(()=>{setSelectedPrize(e.id)}, 5000)
-                        return
-                    }else
-                    if ((e.startDegree < degree-90-360) && (e.endDegree > degree-90-360)) {
-                        setRotate(-degree-1440)
-                        setTimeout(()=>{setSelectedPrize(e.id)}, 5000)
-                        return
+                        for (const e1 of table[selectTable - 1].elementList) {
+                            if (((e1.startDegree < degree - 90) && (e1.endDegree > degree - 90)) || ((e1.startDegree < degree - 90 - 360) && (e1.endDegree > degree - 90 - 360))) {
+                                console.log(e1.limitation < 0, e1.limitation > 0)
+                                if (e1.limitation < 0 || e1.limitation > 0) {
+                                    setRotate(-degree - 1440)
+                                    const tempTable = structuredClone(table);
+                                    tempTable[selectTable - 1] = {...table[selectTable - 1], selectedPrize: e1.id}
+                                    setTimeout(() => {
+                                        setTable(tempTable)
+                                        e1.limitation -= 1;
+                                    }, 5000)
+                                    setTimeout(()=>setIsTurning(false), 5000)
+                                    return;
+                                }
+                            }
+                        }
                     }
                 }
-            )
-
-            setTimeout(()=>{setIsTurning(false)}, 5000)
-        }, 200)
+            }
+            setIsTurning(false)
+        },
+        200)
 
         // for (let i = 0; i< 2000000; i++) {
         //     const degree = chance.floating({min: 0, max: 360});
@@ -183,7 +212,7 @@ export default function App() {
             >
                 <Turntable width={600} height={800}
                            rotateDegree={rotate}
-                           elementList={elementList}></Turntable>
+                           elementList={table[selectTable-1].elementList}></Turntable>
             </Box>
             <Box id={"user-ui"}
                  marginX={"auto"}
@@ -203,6 +232,7 @@ export default function App() {
                     display={"flex"}
                 >
                     <Slider
+                        disabled={isTurning}
                         defaultValue={1}
                         value={selectTable}
                         step={1}
@@ -213,7 +243,7 @@ export default function App() {
                     />
                 </Box>
                 <Box marginX={"auto"}>
-                    {selectedPrize ? elementList[selectedPrize - 1].name : ""}
+                    {table[selectTable-1].selectedPrize ? table[selectTable-1].elementList[table[selectTable-1].selectedPrize - 1].name : ""}
                 </Box>
             </Box>
         </Box>
@@ -224,15 +254,17 @@ export default function App() {
                         <TableCell>Name</TableCell>
                         <TableCell>Description</TableCell>
                         <TableCell>Chance</TableCell>
+                        <TableCell>Left</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
                     {
-                        elementList.map((row, i) => {
-                            return <TableRow key={i} selected={i + 1 === selectedPrize}>
+                        table[selectTable-1].elementList.map((row, i) => {
+                            return <TableRow key={i} selected={i + 1 === table[selectTable-1].selectedPrize}>
                                 <TableCell>{row.name}</TableCell>
                                 <TableCell>{row.description}</TableCell>
                                 <TableCell>{row.chance}</TableCell>
+                                <TableCell>{row.limitation < 0 ? "Infinity" : row.limitation === 0 ? "Out" : row.limitation}</TableCell>
                             </TableRow>
                         })
                     }
