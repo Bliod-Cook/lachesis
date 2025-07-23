@@ -200,21 +200,23 @@ export default function App() {
     }
 
     return <Box
+        className={AppStyle.appContainer}
         display={"flex"}
         // flexDirection={"column"}
     >
         <Box display={"flex"} flexDirection={"column"}>
             <Box
-                className={"turntable"}
+                className={`turntable ${AppStyle.turntableSection}`}
                 width={600}
-                height={800}
+                height={600}
                 marginX={"auto"}
             >
-                <Turntable width={600} height={800}
+                <Turntable width={600} height={600}
                            rotateDegree={rotate}
                            elementList={table[selectTable-1].elementList}></Turntable>
             </Box>
             <Box id={"user-ui"}
+                 className={AppStyle.controlsSection}
                  marginX={"auto"}
                  display={"flex"}
                  flexDirection={"column"}
@@ -227,6 +229,7 @@ export default function App() {
                     抽奖
                 </Button>
                 <Box
+                    className={AppStyle.sliderContainer}
                     width={240}
                     marginX={"auto"}
                     display={"flex"}
@@ -240,37 +243,86 @@ export default function App() {
                         max={10}
                         marks
                         onChange={(_e, v)=>{setSelectTable(v as number)}}
+                        sx={{
+                            color: '#667eea',
+                            '& .MuiSlider-thumb': {
+                                backgroundColor: '#667eea',
+                                width: 20,
+                                height: 20,
+                                '&:hover': {
+                                    boxShadow: '0 0 0 8px rgba(102, 126, 234, 0.16)',
+                                },
+                            },
+                            '& .MuiSlider-track': {
+                                backgroundColor: '#667eea',
+                            },
+                            '& .MuiSlider-rail': {
+                                backgroundColor: '#e0e7ff',
+                            },
+                            '& .MuiSlider-mark': {
+                                backgroundColor: '#667eea',
+                            },
+                            '& .MuiSlider-markLabel': {
+                                color: '#64748b',
+                                fontSize: '12px',
+                                fontWeight: 500,
+                            },
+                        }}
                     />
                 </Box>
-                <Box marginX={"auto"}>
-                    {table[selectTable-1].selectedPrize ? table[selectTable-1].elementList[table[selectTable-1].selectedPrize - 1].name : ""}
+                <Box className={AppStyle.prizeDisplay} marginX={"auto"}>
+                    {table[selectTable-1].selectedPrize ? table[selectTable-1].elementList[table[selectTable-1].selectedPrize - 1].name : "等待抽奖结果..."}
                 </Box>
             </Box>
         </Box>
-        <TableContainer>
-            <Table>
-                <TableHead>
-                    <TableRow selected={true}>
-                        <TableCell>Name</TableCell>
-                        <TableCell>Description</TableCell>
-                        <TableCell>Chance</TableCell>
-                        <TableCell>Left</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {
-                        table[selectTable-1].elementList.map((row, i) => {
-                            return <TableRow key={i} selected={i + 1 === table[selectTable-1].selectedPrize}>
-                                <TableCell>{row.name}</TableCell>
-                                <TableCell>{row.description}</TableCell>
-                                <TableCell>{row.chance}</TableCell>
-                                <TableCell>{row.limitation < 0 ? "Infinity" : row.limitation === 0 ? "Out" : row.limitation}</TableCell>
-                            </TableRow>
-                        })
-                    }
-                </TableBody>
-            </Table>
-        </TableContainer>
+        <Box className={AppStyle.tableSection} marginX={"auto"} width={"auto"}>
+            <TableContainer>
+                <Table sx={{ 
+                    '& .MuiTableHead-root': {
+                        backgroundColor: '#f8fafc',
+                    },
+                    '& .MuiTableCell-head': {
+                        fontWeight: 'bold',
+                        color: '#374151',
+                        fontSize: '14px',
+                    },
+                    '& .MuiTableRow-root:hover': {
+                        backgroundColor: '#f1f5f9',
+                    },
+                    '& .MuiTableRow-root.Mui-selected': {
+                        backgroundColor: '#e0e7ff !important',
+                        '&:hover': {
+                            backgroundColor: '#c7d2fe !important',
+                        },
+                    },
+                    '& .MuiTableCell-root': {
+                        borderBottom: '1px solid #e2e8f0',
+                        padding: '12px 16px',
+                    },
+                }}>
+                    <TableHead>
+                        <TableRow selected={true}>
+                            <TableCell>Name</TableCell>
+                            <TableCell>Description</TableCell>
+                            <TableCell>Chance</TableCell>
+                            <TableCell>Left</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {
+                            table[selectTable-1].elementList.map((row, i) => {
+                                return <TableRow key={i} selected={i + 1 === table[selectTable-1].selectedPrize}>
+                                    <TableCell>{row.name}</TableCell>
+                                    <TableCell>{row.description}</TableCell>
+                                    <TableCell>{row.chance}</TableCell>
+                                    <TableCell>{row.limitation < 0 ? "Infinity" : row.limitation === 0 ? "Out" : row.limitation}</TableCell>
+                                </TableRow>
+                            })
+                        }
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </Box>
     </Box>;
 
 }
@@ -281,27 +333,27 @@ class Colors {
 
     constructor() {
         this.colors = [
-            '#FF5733',
-            '#FFC300',
-            '#DAF7A8',
-            '#90EE90',
-            '#81D8D0',
-            '#6495ED',
-            '#007BFF',
-            '#A020F0',
-            '#E278E2',
-            '#FF69B4',
-            '#CD5C5C',
-            '#FA8072',
-            '#D2B48C',
-            '#A9A9A9',
-            '#FFFF00',
-            '#E6E6FA',
-            '#F4A460',
-            '#FFD700',
-            '#228B22',
-            '#00FFFF',
-            '#800000',
+            '#FF6B6B', // Coral Red
+            '#4ECDC4', // Turquoise
+            '#45B7D1', // Sky Blue
+            '#96CEB4', // Mint Green
+            '#FFEAA7', // Pastel Yellow
+            '#DDA0DD', // Plum
+            '#98D8C8', // Mint
+            '#F7DC6F', // Light Yellow
+            '#BB8FCE', // Light Purple
+            '#85C1E9', // Light Blue
+            '#F8C471', // Peach
+            '#82E0AA', // Light Green
+            '#F1948A', // Light Coral
+            '#AED6F1', // Powder Blue
+            '#D7DBDD', // Light Gray
+            '#FADBD8', // Misty Rose
+            '#D5F4E6', // Honeydew
+            '#FCF3CF', // Light Cream
+            '#EBDEF0', // Lavender
+            '#D6EAF8', // Alice Blue
+            '#EDBB99', // Peach Puff
         ]
         this.arrow = 0
     }

@@ -1,7 +1,115 @@
 .startButton {
-    background-color: aqua !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    font-weight: bold !important;
+    font-size: 18px !important;
+    padding: 12px 32px !important;
+    border-radius: 25px !important;
+    text-transform: none !important;
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.3) !important;
+    transition: all 0.3s ease !important;
+    border: none !important;
+    min-width: 150px !important;
+    
+    &:hover {
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 12px 40px rgba(102, 126, 234, 0.4) !important;
+    }
+    
+    &:disabled {
+        background: linear-gradient(135deg, #cccccc 0%, #999999 100%) !important;
+        transform: none !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1) !important;
+        cursor: not-allowed !important;
+    }
 }
 
 .tableRow {
     height: 10px !important;
+}
+
+.appContainer {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.turntableSection {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.controlsSection {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    margin-bottom: 20px;
+}
+
+.tableSection {
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    max-height: 600px;
+    overflow-y: auto;
+    
+    /* Custom scrollbar styling */
+    &::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 10px;
+        margin: 10px 0;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+        border: 1px solid #ffffff;
+    }
+    
+    &::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    }
+    
+    /* Firefox scrollbar styling */
+    scrollbar-width: thin;
+    scrollbar-color: #667eea #f1f5f9;
+}
+
+.sliderContainer {
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin: 15px 0;
+}
+
+.prizeDisplay {
+    background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+    color: #2d3436;
+    padding: 15px 25px;
+    border-radius: 15px;
+    font-weight: bold;
+    font-size: 16px;
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(250, 177, 160, 0.3);
+    margin-top: 15px;
+    min-height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+html, body {
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }

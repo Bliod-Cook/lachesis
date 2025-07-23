@@ -25,12 +25,19 @@ export default function Turntable({width, height, elementList, rotateDegree}: {
     return (
         <Box width={width} height={height}
              position={"relative"}
+             className="wheelContainer"
         >
             <svg
                 ref={wheelRef}
                 width={width}
                 height={height}
             >
+                <defs>
+                    <linearGradient id="shadowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style={{stopColor:"rgba(0,0,0,0.1)", stopOpacity:1}} />
+                        <stop offset="100%" style={{stopColor:"rgba(0,0,0,0.3)", stopOpacity:1}} />
+                    </linearGradient>
+                </defs>
                 <g id={"table"} className={`table`} transform={`rotate(${rotateDegree})`} style={{
                     transition: rotateDegree === 0 ? "none": undefined,
                 }}>
@@ -68,7 +75,11 @@ export default function Turntable({width, height, elementList, rotateDegree}: {
                                 <path
                                     d={pathD}
                                     fill={color}
-                                    // stroke={"black"}
+                                    stroke={"#ffffff"}
+                                    strokeWidth={2}
+                                    style={{
+                                        filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+                                    }}
                                 ></path>
                                 <text
                                     x={labelX}
@@ -77,9 +88,11 @@ export default function Turntable({width, height, elementList, rotateDegree}: {
                                     transform={`rotate(${rotate}, ${labelX}, ${labelY})`}
                                     dominantBaseline="middle"
                                     style={{
-                                        fontSize: '12px',
+                                        fontSize: '14px',
                                         userSelect: 'none',
                                         fontWeight: 'bold',
+                                        fill: '#2d3436',
+                                        filter: 'drop-shadow(0 1px 2px rgba(255,255,255,0.8))'
                                     }}
                                 >
                                     {name}
@@ -88,11 +101,12 @@ export default function Turntable({width, height, elementList, rotateDegree}: {
                         })
                     }
                 </g>
-                <circle cx={width/2} cy={height/2} r={radius} fill={"none"} stroke={"black"}></circle>
+                <circle cx={width/2} cy={height/2} r={radius} fill={"none"} stroke={"#667eea"} strokeWidth={3}></circle>
                 <polygon
                     points={`${width / 2},${height / 2 - radius + 10} ${width / 2 - 10},${height / 2 - radius - 20} ${width / 2 + 10},${height / 2 - radius - 20}`}
                 ></polygon>
             </svg>
+            <div className="wheelCenter"></div>
         </Box>
     )
 }
