@@ -170,8 +170,8 @@ export default function App() {
                                     setTimeout(() => {
                                         setTable(tempTable)
                                         e1.limitation -= 1;
-                                    }, 5000)
-                                    setTimeout(()=>setIsTurning(false), 5000)
+                                    }, 3000)
+                                    setTimeout(()=>setIsTurning(false), 3000)
                                     return;
                                 }
                             }
